@@ -6,11 +6,11 @@ PDF Extract and Process (PEaP) is a tool to extract data from set of different p
 
 ```
 project
-    ├── config.json [do not commit]
-    ├── dev-env
-    │   └── Dockerfile
     ├── README.md
-    ├── requirements.txt
+    ├── config.json
+    ├── dev-env
+    │   ├── Dockerfile
+    │   └── requirements.txt
     ├── src
     │   ├── __init__.py
     │   └── main.py
@@ -19,7 +19,7 @@ project
         ├── resources
         │   └── test.pdf
         └── test_main.py
-    
+
 ```
 
 ### Development environment
@@ -39,10 +39,8 @@ You have two choices.
 
 #### IDE
 
-For the best experience using VSC and your dev container, install Dev Containers by Microsoft. Then navigate to the extension and connect to the running container. 
+For the best experience using VSC and your dev container, install Dev Containers by Microsoft. Then navigate to the extension and connect to the running container.
 
 This way your VSC should recognize the Python packages installed in your container, and you should have access to code completion, linting, and other IDE features.
 
 [Sorry for all those using PyCharm or other IDEs - YMMV]
-
-

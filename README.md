@@ -12,10 +12,13 @@ project
     ├── README.md
     ├── requirements.txt
     ├── src
+    │   ├── __init__.py
     │   └── main.py
-    └── test
-        └── resources
-            └── test.pdf
+    └── tests
+        ├── __init__.py
+        ├── resources
+        │   └── test.pdf
+        └── test_main.py
     
 ```
 

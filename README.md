@@ -6,11 +6,17 @@ PDF Extract and Process (PEaP) is a tool to extract data from set of different p
 
 ```
 project
+    ├── config.json [do not commit]
     ├── dev-env
     │   └── Dockerfile
     ├── README.md
-    └── src
-        └── main.py
+    ├── requirements.txt
+    ├── src
+    │   └── main.py
+    └── test
+        └── resources
+            └── test.pdf
+    
 ```
 
 ### Development environment

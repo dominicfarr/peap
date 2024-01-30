@@ -1,0 +1,33 @@
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Dependency directories
+bin/
+lib/
+include/
+lib64/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+*.deb
+*.rpm
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.tgz
+
+# Other
+*.log
+*.swp
+.DS_Store
+config.json

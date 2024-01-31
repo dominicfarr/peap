@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "peap"
+version = "0.1.0"
+description = "PDF Extract and Process (PEaP) is a tool to extract data from set of different pdf, and bring them into a standard format for reporting."
+authors = ["dommo"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pdfplumber = "^0.10.3"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.15"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

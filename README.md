@@ -24,7 +24,7 @@ peap
 
 ### Development environment
 
-Development of this project requires several external APIs/CLIs, for example the AWS CLI and AWS SAM CLI. In order to keep your host free of project specific items a docker container can be used.
+Development of this project requires several external APIs/CLIs, for example the AWS CLI and AWS SAM CLI. In order to keep your host free of project specific items a Docker container can be used.
 
 Build an image using the Dockerfile `docker build -t peap ./dev-env`
 

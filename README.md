@@ -37,6 +37,8 @@ You can now create a container with an interactive shell with the `docker run` c
 
 #### IDE
 
+_Currently this isn't available due to the base image from aws not having the requierd libstdc++.so and glibc installed - next best thing is start an interactive shell inside of the vsc project_
+
 For the best experience using VSC and your dev container, install Dev Containers by Microsoft. Then navigate to the extension and connect to the running container.
 
 This way your VSC should recognize the Python packages installed in your container, and you should have access to code completion, linting, and other IDE features.
@@ -49,6 +51,14 @@ Dependencies are managed by [Poetry](https://python-poetry.org/), which is insta
 
 Within the interactive shell you can run the poetry cmds needs for the project.
 
+Remember to execute `poetry install` in the root when you first create the container. This will install the required packages. After which you can execute other poetry commands e.g. `poetry run python3 src/main.py`
+
 ### Code Lint Format
 
 [Ruff](https://github.com/astral-sh/ruff) is available in the Docker image for linting and formatting the code to a recognised standard.
+
+### Testing
+
+This project is setup using [pytest](https://docs.pytest.org/) There is a separate folder branch for `tests`, which mirrors the `src` folder.
+
+To run all tests from the command line `poetry run pytest`

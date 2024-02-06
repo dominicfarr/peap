@@ -3,7 +3,7 @@ import calendar
 import datetime
 import json
 import re
-
+from pypdf import PdfReader
 import pdfplumber
 from config import AppConfig
 
@@ -13,14 +13,6 @@ class Peap:
         self.app_config = app_config
         self.dlq = {}
 
-    def _is_known_pdf(self, pdf_text):
-        rules = self.app_config.get_rules()
-        for item in rules:
-            if item.get("pattern", "") in pdf_text:
-                return True, item.get("label", "")
-
-        return False, None
-
     def run(self):
         files = self.app_config.get_files()
         for file in files:
@@ -29,41 +21,48 @@ class Peap:
         print(f"{self.dlq}")
 
     def _process_pdf(self, pdf_file, pdf_password=None):
-        with pdfplumber.open(pdf_file, password=pdf_password) as pdf:
-            first_page = (
-                pdf.pages[0].extract_text(x_tolerance=3, y_tolerance=3)
-                if pdf.pages
-                else None
-            )
-            is_known, label = self._is_known_pdf(first_page)
-            if is_known and label == "TD Aeroplan Visa":
-                extracted_text = ""
-                for page in pdf.pages:
-                    page_text = page.extract_text(x_tolerance=3, y_tolerance=3)
-                    extracted_text += page_text
-
+        reader = PdfReader(pdf_file)
+        if reader.is_encrypted:
+            reader.decrypt(pdf_password)
+            
+        page1 = reader.pages[0]
+        is_known, label = self._is_known_pdf(page1.extract_text())
+        if is_known and label == "TD Aeroplan Visa":
+            print(f"{pdf_file} is a TD Aeroplan Visa document")
+            for page in reader.pages:
+                extracted_text = page.extract_text()
+                print(extracted_text)
                 match = re.search(
-                    r"STATEMENTPERIOD:([a-zA-Z]+)(\d+),(\d+)to([a-zA-Z]+)(\d+),(\d+)",
+                    r"STATEMENT PERIOD: ([a-zA-Z]+) (\d+),(\d+)to([a-zA-Z]+)(\d+),(\d+)", 
                     extracted_text,
                 )
                 if match is not None:
-                    is_roll_over = match.group(3) != match.group(6)
-                    first_year = match.group(3)
-                    last_year = match.group(6) if is_roll_over else match.group(3)
+                    is_roll_over = match[3] != match[6]
+                    first_year = match[3]
+                    last_year = match[6] if is_roll_over else match[3]
                     print(f"{extracted_text}")
                     rows = self._extract_standardised_rows(extracted_text, first_year, last_year)
                     self._appendToResults(rows)
                 else:
                     self._dlq(pdf_file, "no statement period")
-            if is_known and label == "Pass The Keys":
-                print(f"{pdf_file} is a PTK document")
-            else:
-                self._dlq(pdf_file)
+                
+        elif is_known and label == "Pass The Keys":
+            print(f"{pdf_file} is a PTK document")
+        else:
+            self._dlq(pdf_file)
+
+    def _is_known_pdf(self, pdf_text):
+        rules = self.app_config.get_rules()
+        for rule in rules:
+            pattern = rule.get("pattern", "")
+            if pattern in pdf_text:
+                return True, rule.get("label", "")
+
+        return False, None
 
     def _dlq(self, pdf_file, issue="unknown"):
         print(f"{pdf_file} is in the DLQ")
         self.dlq[pdf_file] = {"issue": issue}
-
 
     def _extract_standardised_rows(self, raw_extracted_txt, first_year, last_year):
         pattern = r'^(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC).*'
@@ -88,7 +87,6 @@ class Peap:
         specific_date = datetime.date(int(year), index, int(date[3:]))
         return specific_date.strftime("%Y-%b-%d")
 
-    
     def _appendToResults(self, rows):
         for row in rows:
             print(row)
@@ -100,3 +98,5 @@ if __name__ == "__main__":
 
     app = Peap(AppConfig(args.config))
     app.run()
+
+

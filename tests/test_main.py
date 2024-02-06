@@ -2,7 +2,8 @@ import json
 import pytest
 from unittest.mock import patch, mock_open
 from io import StringIO
-from src.main import Peap, AppConfig
+from main import Peap
+from config import AppConfig
 
 with open("./tests/resources/config.json", "r") as config_file:
     config_data_dict = json.load(config_file)

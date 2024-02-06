@@ -57,30 +57,38 @@ def mock_app_config():
     mock_config = Mock()
     mock_config.get_files.return_value = [
         {"pdf_file": "test1.pdf", "pdf_password": "password1"},
-        {"pdf_file": "test2.pdf", "pdf_password": "password2"}
+        {"pdf_file": "test2.pdf", "pdf_password": "password2"},
     ]
     mock_config.get_rules.return_value = [
         {"pattern": "TD Aeroplan Visa", "label": "TD Aeroplan Visa"},
-        {"pattern": "Pass The Keys", "label": "Pass The Keys"}
+        {"pattern": "Pass The Keys", "label": "Pass The Keys"},
     ]
     return mock_config
+
 
 # Mocking PdfReader to provide controlled test data
 @pytest.fixture
 def mock_pdf_reader(mocker):
-    return mocker.patch('main.PdfReader', autospec=True)
+    return mocker.patch("main.PdfReader", autospec=True)
+
 
 # Parametrized test for the happy path
 @pytest.mark.parametrize(
     "test_id, pdf_text, expected_output",
     [
-        ("happy_path_td_visa", "TD Aeroplan Visa\nSTATEMENT PERIOD: January 1,2023toFebruary 1,2023", "test1.pdf is a TD Aeroplan Visa document"),
+        (
+            "happy_path_td_visa",
+            "TD Aeroplan Visa\nSTATEMENT PERIOD: January 1,2023toFebruary 1,2023",
+            "test1.pdf is a TD Aeroplan Visa document",
+        ),
         ("happy_path_ptk", "Pass The Keys", "test1.pdf is a PTK document"),
         # Add more test cases as needed
     ],
     ids=str,
 )
-def test_happy_path(mock_app_config, mock_pdf_reader, test_id, pdf_text, expected_output, capsys):
+def test_happy_path(
+    mock_app_config, mock_pdf_reader, test_id, pdf_text, expected_output, capsys
+):
     # Arrange
     peap = Peap(mock_app_config)
     mock_pdf_reader.return_value.pages[0].extract_text.return_value = pdf_text
@@ -91,6 +99,7 @@ def test_happy_path(mock_app_config, mock_pdf_reader, test_id, pdf_text, expecte
     # Assert
     captured = capsys.readouterr()
     assert expected_output in captured.out
+
 
 # Parametrized test for edge cases
 @pytest.mark.parametrize(
@@ -101,7 +110,9 @@ def test_happy_path(mock_app_config, mock_pdf_reader, test_id, pdf_text, expecte
     ],
     ids=str,
 )
-def test_edge_cases(mock_app_config, mock_pdf_reader, test_id, pdf_text, expected_output, capsys):
+def test_edge_cases(
+    mock_app_config, mock_pdf_reader, test_id, pdf_text, expected_output, capsys
+):
     # Arrange
     peap = Peap(mock_app_config)
     mock_pdf_reader.return_value.pages[0].extract_text.return_value = pdf_text
@@ -113,6 +124,7 @@ def test_edge_cases(mock_app_config, mock_pdf_reader, test_id, pdf_text, expecte
     captured = capsys.readouterr()
     assert expected_output in captured.out
 
+
 # Parametrized test for error cases
 @pytest.mark.parametrize(
     "test_id, pdf_text, expected_output",
@@ -122,7 +134,9 @@ def test_edge_cases(mock_app_config, mock_pdf_reader, test_id, pdf_text, expecte
     ],
     ids=str,
 )
-def test_error_cases(mock_app_config, mock_pdf_reader, test_id, pdf_text, expected_output, capsys):
+def test_error_cases(
+    mock_app_config, mock_pdf_reader, test_id, pdf_text, expected_output, capsys
+):
     # Arrange
     peap = Peap(mock_app_config)
     mock_pdf_reader.return_value.pages[0].extract_text.return_value = pdf_text

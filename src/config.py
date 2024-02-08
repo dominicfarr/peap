@@ -15,3 +15,6 @@ class AppConfig:
 
     def get_rules(self):
         return self.data.get("rules", [])
+
+    def get_output(self):
+        return self.data.get("output", "")

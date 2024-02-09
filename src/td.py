@@ -75,16 +75,27 @@ class TD_Row_Extractor:
             if statement_period["is_rollover"]() and re.match(pattern, line)
             else statement_period.get("start")[:4]
         )
-        items = line.split(" ")
-        return self._format_line_with_date(items, year)
 
-    def _format_line_with_date(self, items, year):
-        return f"{self._format_date(items[0], year)}, {items[1]}, {' '.join(items[2:])}"
+        items = line.split(" ")
+        if re.match(r"([A-Z]{3}\d+[A-Z]{3}\d+)", line) is not None:
+            amount = line.split(' ')[1]
+            desc = ' '.join(items[2:])
+        else:
+            amount = line.split(' ')[2]
+            desc = ' '.join(items[3:])
+            
+        date = self._format_date(items[0], year)
+        
+        return " | ".join([date, amount, desc])             
+
+
+    def _format_line_with_date(self, items, year, amount, desc):
+        return f"{self._format_date(items[0], year)} | {amount} | {desc}"
 
     def _format_date(self, date, year):
         pattern = r"([a-zA-Z]+)(\d+)"
 
         match = re.search(pattern, date)
-        index = list(calendar.month_abbr).index(match[1].title())
+        index = str(list(calendar.month_abbr).index(match[1].title()))
 
-        return f"{year}-{index}-{match[2]}"
+        return f"{year}-{index.zfill(2)}-{match[2].zfill(2)}"

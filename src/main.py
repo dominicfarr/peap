@@ -20,7 +20,7 @@ class Peap:
 
         self._write_results()
 
-        print(f"{self.dlq}")
+        print(f"Process complete.\n\nResults appended to {self.app_config.get_output()}\n\nErrors: \n{self.dlq}")
 
     def _process_pdf(self, pdf_file, pdf_password=None):
         reader = PdfReader(pdf_file)

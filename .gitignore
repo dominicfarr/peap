@@ -33,3 +33,4 @@ dist/
 .DS_Store
 config.json
 test*.pdf
+results.csv

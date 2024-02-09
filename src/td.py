@@ -8,7 +8,7 @@ class TD:
         self.statement_period = TD_Statement_Period()
         self.td_row_extractor = TD_Row_Extractor()
 
-    def process(self, pdf_file, reader, results_hof, dlq_hof):
+    def process(self, delimiter, pdf_file, reader, results_hof, dlq_hof):
         # print(f"{pdf_file} is a TD Aeroplan Visa document")
 
         statement_period = self.statement_period.get_statement_period(
@@ -19,9 +19,10 @@ class TD:
             for page in reader.pages:
                 extracted_text = page.extract_text()
                 rows = self.td_row_extractor.extract(extracted_text, statement_period)
-                results_hof(rows)
+                for row in rows:
+                    results_hof(*row.split(delimiter))
         else:
-            dlq_hof(pdf_file, "no statement period")
+            dlq_hof(pdf_file, "TD Processor failed to find a statement period")
 
 
 class TD_Statement_Period:
@@ -78,19 +79,18 @@ class TD_Row_Extractor:
 
         items = line.split(" ")
         if re.match(r"([A-Z]{3}\d+[A-Z]{3}\d+)", line) is not None:
-            amount = line.split(' ')[1]
-            desc = ' '.join(items[2:])
+            amount = line.split(" ")[1]
+            desc = " ".join(items[2:])
         else:
-            amount = line.split(' ')[2]
-            desc = ' '.join(items[3:])
-            
-        date = self._format_date(items[0], year)
-        
-        return " | ".join([date, amount, desc])             
+            amount = line.split(" ")[2]
+            desc = " ".join(items[3:])
 
+        date = self._format_date(items[0], year)
+
+        return " | ".join([date, amount, desc])
 
     def _format_line_with_date(self, items, year, amount, desc):
-        return f"{self._format_date(items[0], year)} | {amount} | {desc}"
+        return f"{self._format_date(items[0], year)}|{amount}|{desc}"
 
     def _format_date(self, date, year):
         pattern = r"([a-zA-Z]+)(\d+)"

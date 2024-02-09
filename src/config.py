@@ -18,3 +18,7 @@ class AppConfig:
 
     def get_output(self):
         return self.data.get("output", "")
+        return self.data.get("rules", [])
+
+    def get_delimiter(self):
+        return self.data.get("delimiter", "")

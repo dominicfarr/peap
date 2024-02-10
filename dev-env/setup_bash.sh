@@ -3,7 +3,7 @@ echo "alias xpapp='poetry run python src/app.py'" >> /root/.bashrc
 echo "alias xprx='poetry run python '" >> /root/.bashrc
 echo "alias xpt='poetry run pytest .'" >> /root/.bashrc
 echo "alias xrf='poetry run ruff format .'" >> /root/.bashrc
-echo "alias ll='ls -l'" >> /root/.bashrc
+echo "alias ll='ls -las'" >> /root/.bashrc
 
 # Set Git user name
 git config --global user.name "Dommo"

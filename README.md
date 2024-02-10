@@ -6,19 +6,10 @@ PDF Extract and Process (PEaP) is a tool to extract data from set of different p
 
 ```
 peap
-├── dev-env
-│   └── Dockerfile [Dev env with required toolset need to develop this project]
-├── poetry.lock
-├── pyproject.toml
-├── README.md
-├── src
-│   ├── __init__.py
-│   ├── main.py
-└── tests
-    ├── __init__.py
-    ├── resources
-    │   └── test.pdf
-    └── test_main.py
+│ [Project related files]
+├── dev-env [Dev env container with required toolset need to develop this project]
+├── src [Production code]
+└── tests [Test code]
 
 ```
 
@@ -34,6 +25,8 @@ You can now create a container with an interactive shell with the `docker run` c
 
 1. Mount your host .aws directory into the container with the run command `docker run -it  -v .:/app -v ~/.aws:/root/.aws peap`
 2. Run your container `docker run -it  -v .:/app`, which will drop you into the bash shell, and follow the aws credentials flow inside your container. [If the container is lost or delete you will need to go through this step again when you recreate the container.]
+
+You can mount your ssh-keys and forward localhost:8000 to container.local:5000, which is the port the flask server runs on `docker run -it -v ~/.ssh/:/root/.ssh -v .:/app -p 8000:5000 peap`
 
 #### IDE
 

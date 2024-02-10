@@ -8,7 +8,6 @@ from td import TD
 
 
 class Peap:
-    
     def __init__(self, app_config):
         self.app_config = app_config
         self.delimiter = self.app_config.get_delimiter()
@@ -26,7 +25,6 @@ class Peap:
                 writer = csv.writer(csv_file, delimiter=self.delimiter)
                 writer.writerow(["Date", "Amount", "Description", "Category"])
 
-
     def run(self):
         files = self.app_config.get_files()
 
@@ -37,13 +35,9 @@ class Peap:
             f"Process complete.\n\nResults appended to {self.app_config.get_output()}\n\nErrors: \n{self.dlq}"
         )
 
-    
-
     def _process_pdf(self, pdf_file, pdf_password=None):
-        reader = PdfReader(pdf_file)
-
-        if reader.is_encrypted:
-            reader.decrypt(pdf_password)
+        print(f"Processing {pdf_file} {type(pdf_file)}")
+        reader = PdfReader(pdf_file, password=pdf_password)
 
         page1 = reader.pages[0]
         if class_name := self._is_known_pdf(page1.extract_text()):
@@ -52,7 +46,9 @@ class Peap:
                 self._dlq(pdf_file, "unknown processor")
                 return
 
-            processor.process(self.delimiter, pdf_file, reader, self._write_row, self._dlq)
+            processor.process(
+                self.delimiter, pdf_file, reader, self._write_row, self._dlq
+            )
         else:
             self._dlq(pdf_file)
 
@@ -68,7 +64,7 @@ class Peap:
     def _dlq(self, pdf_file, issue="unknown"):
         self.dlq[pdf_file] = {"issue": issue}
 
-    def _write_row(self, date, amount, description, category = "Uncategorised"):
+    def _write_row(self, date, amount, description, category="Uncategorised"):
         with open(self.app_config.get_output(), "a", newline="") as csv_file:
             writer = csv.writer(csv_file, delimiter=self.delimiter)
             writer.writerow(
@@ -79,7 +75,7 @@ class Peap:
                     category,
                 ]
             )
-                
+
     def _write_results(self):
         with open(self.app_config.get_output(), "a") as file:
             for line in self.results:
@@ -88,9 +84,13 @@ class Peap:
     def _categories(self, *args):
         # Read the existing CSV file into a list of dictionaries
         with open(self.app_config.get_output(), "r", newline="") as csv_file:
-            reader = csv.DictReader(csv_file,fieldnames=["Date", "Amount", "Description"], delimiter=self.delimiter)
+            reader = csv.DictReader(
+                csv_file,
+                fieldnames=["Date", "Amount", "Description"],
+                delimiter=self.delimiter,
+            )
             existing_data = [row for row in reader]
-            
+
         # Define the header row
         header = ["Date", "Amount", "Description", "Category"]
 
@@ -99,7 +99,9 @@ class Peap:
 
         # Write the updated data (including the header) back to the CSV file
         with open(self.app_config.get_output(), "w", newline="") as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=header, delimiter=self.delimiter)
+            writer = csv.DictWriter(
+                csv_file, fieldnames=header, delimiter=self.delimiter
+            )
             writer.writeheader()
             writer.writerows(existing_data)
 
@@ -107,24 +109,30 @@ class Peap:
         with open(self.app_config.get_output(), "r", newline="") as csv_file:
             reader = csv.DictReader(csv_file, delimiter=self.delimiter)
             transactions = [row for row in reader]
-            
+
         # collect known transaction description
         known_transactions = {
-            self.extract_first_part(transaction["Description"].strip()): ('UNCATEGORISED' if transaction["Category"] == '' else '')
+            self.extract_first_part(transaction["Description"].strip()): (
+                "UNCATEGORISED" if transaction["Category"] == "" else ""
+            )
             for transaction in transactions
         }
-        
+
         for transaction in transactions:
             # Check if the current transaction description is known
             description = self.extract_first_part(transaction["Description"].strip())
             print(f"Transaction: {transaction['Description']} key: {description}")
             if description in known_transactions:
                 known_category = known_transactions[description]
-                
-                user_input = input(f"This transaction is already categorized as '{known_category}'. Do you want to associate it with this category? (y/n): ")
-                if user_input.lower() == 'n':
+
+                user_input = input(
+                    f"This transaction is already categorized as '{known_category}'. Do you want to associate it with this category? (y/n): "
+                )
+                if user_input.lower() == "n":
                     # Prompt the user to enter a different category
-                    category = input("Enter a different category (press Enter to skip): ")
+                    category = input(
+                        "Enter a different category (press Enter to skip): "
+                    )
                     known_transactions[description] = category
                 else:
                     # Use the known category for the current transaction
@@ -149,9 +157,10 @@ class Peap:
                     )
 
         print("Categorization completed.")
-        
+
     def extract_first_part(self, input_string):
         return input_string[:5]
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Peap")

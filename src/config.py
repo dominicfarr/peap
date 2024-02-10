@@ -1,10 +1,17 @@
 import json
 
+"""
+
+"""
+
 
 class AppConfig:
-    def __init__(self, config_path):
+    def __init__(self, config_path, inline):
         self.config_path = config_path
-        self.load_config()
+        if self.config_path:
+            self.load_config()
+        elif inline:
+            self.data = inline
 
     def load_config(self):
         with open(self.config_path, "r") as config_file:
@@ -18,7 +25,6 @@ class AppConfig:
 
     def get_output(self):
         return self.data.get("output", "")
-        return self.data.get("rules", [])
 
     def get_delimiter(self):
         return self.data.get("delimiter", "")

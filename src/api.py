@@ -2,7 +2,10 @@ import os
 
 from flask import Flask, request
 from flask_cors import CORS
-from main import AppConfig, Peap
+from main import Peap
+from config import AppConfig
+from data_store import FileSystemDataStore
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -11,28 +14,15 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route("/uploadfile", methods=["POST"])
 def upload_file():
     uploaded_file = request.files["myFile"]
+    
+    config = AppConfig()
+    ds = FileSystemDataStore(config) 
+    
+    peap = Peap(ds)
 
-    peap = Peap(
-        AppConfig(
-            config_path=None,
-            inline={
-                "rules": [
-                    {
-                        "pattern": "TD®Aeroplan®Visa Infinite",
-                        "label": "TD Aeroplan Visa",
-                        "class": "TD",
-                    },
-                    {"pattern": "PTK", "label": "Pass The Keys"},
-                ],
-                "output": "results.csv",
-                "delimiter": "|",
-            },
-        )
-    )
+    results = peap.process_pdf(uploaded_file)
 
-    peap._process_pdf(uploaded_file)
-
-    return "Hello, World!"
+    return results
 
 
 if __name__ == "__main__":

@@ -3,14 +3,22 @@ import re
 
 
 class TD:
+    __match_rule = {
+      "pattern": "TD®Aeroplan®Visa Infinite",
+      "label": "TD Aeroplan Visa",
+      "class": "TD"
+    }
+    
     def __init__(self):
         super(TD, self).__init__()
         self.statement_period = TD_Statement_Period()
         self.td_row_extractor = TD_Row_Extractor()
+        
+    def is_match(self, test_value=""):
+        pattern = self.__match_rule.get("pattern", "")
+        return pattern
 
-    def process(self, delimiter, pdf_file, reader, results_hof, dlq_hof):
-        # print(f"{pdf_file} is a TD Aeroplan Visa document")
-
+    def process(self, pdf_file, reader, results_callback, dlq_callback):
         statement_period = self.statement_period.get_statement_period(
             reader.pages[0].extract_text()
         )
@@ -19,10 +27,11 @@ class TD:
             for page in reader.pages:
                 extracted_text = page.extract_text()
                 rows = self.td_row_extractor.extract(extracted_text, statement_period)
+                
                 for row in rows:
-                    results_hof(*row.split(delimiter))
+                    results_callback(*row)
         else:
-            dlq_hof(pdf_file, "TD Processor failed to find a statement period")
+            dlq_callback(pdf_file, "TD Processor failed to find a statement period")
 
 
 class TD_Statement_Period:
@@ -87,7 +96,7 @@ class TD_Row_Extractor:
 
         date = self._format_date(items[0], year)
 
-        return " | ".join([date, amount, desc])
+        return date, amount, desc
 
     def _format_line_with_date(self, items, year, amount, desc):
         return f"{self._format_date(items[0], year)}|{amount}|{desc}"

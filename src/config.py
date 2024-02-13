@@ -1,11 +1,12 @@
 import json
 
+
 class AppConfig:
     __default = {
-                "output": "results.csv",
-                "delimiter": "|",
-            }
-    
+        "output": "results.csv",
+        "delimiter": "|",
+    }
+
     def __init__(self, config_path: str = None):
         self.config_path = config_path
         self.data = {}

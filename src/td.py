@@ -4,16 +4,16 @@ import re
 
 class TD:
     __match_rule = {
-      "pattern": "TD®Aeroplan®Visa Infinite",
-      "label": "TD Aeroplan Visa",
-      "class": "TD"
+        "pattern": "TD®Aeroplan®Visa Infinite",
+        "label": "TD Aeroplan Visa",
+        "class": "TD",
     }
-    
+
     def __init__(self):
         super(TD, self).__init__()
         self.statement_period = TD_Statement_Period()
         self.td_row_extractor = TD_Row_Extractor()
-        
+
     def is_match(self, test_value=""):
         pattern = self.__match_rule.get("pattern", "")
         return pattern
@@ -27,11 +27,260 @@ class TD:
             for page in reader.pages:
                 extracted_text = page.extract_text()
                 rows = self.td_row_extractor.extract(extracted_text, statement_period)
-                
+
                 for row in rows:
-                    results_callback(*row)
+                    results_callback(*row, self._category(row[2]))
+                
         else:
             dlq_callback(pdf_file, "TD Processor failed to find a statement period")
+
+    def _category(self, text=""):
+        if self._find(
+            [
+                "SMIGGLE",
+                "UNIQLO",
+                "TELZE",
+                "THEDECKBOXHALIFAX",
+                "GUYSFRENCHYS",
+                "DOLLARAMA",
+                "REDBUBBLE.COM",
+                "HUDSON ST1961",
+                "SPORTS EXPERTS",
+                "BOUTIQUE ARTDEVIVRE",
+                "THEHALIFAX WATCH CO.",
+                "TOYSRUSONLINE",
+                "SARAH&TOM",
+                "GAPCANADA",
+                "MOUNTAIN WAREHOUSE",
+                "BRILLIANTE",
+                "NATURE FOLKWELLNESS",
+                "sportchek",
+                "Amazon.ca",
+                "AMZNMktpCA",
+                "SHEIN",
+                "SHOWCASE",
+                "LUSH",
+                "GAMESTOP",
+                "IKEA",
+                "LAWRENCETOWN CANDLE",
+                "TWIGGZ",
+                "OLDNAVY",
+                "MainShopLuga",
+                "FREAKLUNCHBOX",
+                "SWEETJANE'SGIFTS",
+                "ARDENE",
+                "LONG&MCQUADE",
+                "THEENTERTAINER",
+                "MARKS&SPENCER",
+                "ZARA",
+                "HMHennes",
+                "COLES"
+            ],
+            text,
+        ):
+            return "Shopping"
+        if self._find(["ymca", "WAEGWOLTIC", "EASTPEAKCLIMBING"], text):
+            return "Clubs"
+        if self._find(["nsltdhalifax"], text):
+            return "Shopping."
+        if self._find([ "NSLC"], text):
+            return "Alcohol"
+        if self._find(
+            [
+                "UNIVERSAL PROPERTY MANAGE",
+                "STATIONNEMENT CENTRE-VILL",
+                "STEELE MITSUBISHI",
+                "SHELLC",
+                "PETROCANADA",
+                "SPAEASTMAN EASTMAN",
+                "ESSO",
+                "GWRLONDPADDSSTPADDINGTON",
+                "UBR*PENDING.UBER.COM LONDON",
+                "SIXT",
+                "BPFLYOVER F/STNLONDON",
+                "aircan",
+                "HALIFAX INTLAIRPORT",
+                "UBER*TRIP",
+                "TFLTRAVEL",
+                "LIM*1RIDES",
+                "SWISSINTERN",
+                "SWISSAIRLIN",
+                "UBERTRIP",
+                "Lagardere Fil.217Frankfurt",
+                "AlnaturaProduktions u.Frankfurt am",
+                "MEYER FEINKOST GMBHFRANKFURT",
+                "MORIKI TOGOFRANKFURT AM",
+                "SOFITEL FRANKFURT OPERFRANKFURT",
+                "MORIKI TOGOFRANKFURT AM",
+                "CASUALFOOD FLUGHAFEN FRFrankfurt",
+                "Heinemann DutyFree/Fil.3 Frankfurt",
+                "INTERCONTI BANQUETIN STJULIANS",
+                "OPALLOUNGE STJULIANS",
+                "NTERCONTI FRONTOFFSTJULIANS", 
+                "GWRSWINDON",
+                "LONDON TOURIST GUIDEShadwell",
+                "DEUTSCHE LUF",
+                "trainline",
+                "CHELTENHAM BOROUGH COUNCI"              
+            ],
+            text,
+        ):
+            return "Travel"
+        if self._find(
+            ["Apple", "AmazonChannels", "PARAMOUNT PLUS", "VIACOMCBS STREAMING","TICKETMASTER", "CINEPLEX", "THECAMBRIDGE THEATRE", "LWTheatresGroupLimitedLondon", "CAMBRIDGE THEATRE LONDON"], text
+        ):
+            return "Entertainment"
+        if self._find(
+            [
+                "NOGGINS ONCOBURG ",
+                "ASDASTORES",
+                "CO-OPERATIVE FOOD",
+                "SAINSBURYS",
+                "COOPOURRETAIL",
+                "TESCOSTORES",
+                "PETE'SDRESDEN",
+                "SOBEYS",
+                "ATLANTIC SUPERSTORE",
+                "SUPERSTORE",
+                "WAL-MART",
+                "ORGANIC EARTHMARKET",
+                "HENNIGAR'S FARMMARKET",
+                "SUPERSTOR",
+                "WMMORRISONS",
+                "CO-OPGROUP",
+                "SPARHATHERLEY",
+                "SMITHMANN",
+                "INTERCONTINENTAL FOODAND"     ,
+                "NISALOCAL"    ,
+                "LIDLGB"    ,
+                "WMMORRISONS",
+                "GETAWAY FARMERS &BUTCBEDFORD",
+                "BULKBARN"
+            ],
+            text,
+        ):
+            return "Groceries"
+        if self._find(["INSURANCE", "SIMPLY BUSINESS INS"], text):
+            return "Insurance"
+        if self._find(["KOODO", "AIRALO", "MOBILE MASTER"], text):
+            return "Phone"
+        if self._find(
+            [
+                "CAFFENEROWHITECITYWESLONDON",
+                "WAGAMAMA",
+                "UDDERLICIOUS LLondon"
+                "LEAFWILD UXBRIDGE",
+                "131THEPROMENADE CHELTENHAM",
+                "CURIOUS CAFE",
+                "WAFFLE Cheltenham",
+                "THEBELLINN",
+                "HEYDARI",
+                "RISE&VINE",
+                "THEROYALCHELTENHAM",
+                "Dominos",
+                "BlackGoldCafe",
+                "LAKESIDE TAKEAWAY",
+                "Garrison Brewing",
+                "CINNABON",
+                "JUGOJUICE",
+                "VILLAMADINA",
+                "Subway",
+                "KINGOFDONAIR",
+                "WHSmithHeathrow",
+                "WHSMITH",
+                "GWRFOODONTRAINSWINDON",
+                "STARBUCKS",
+                "MORTY BOBSLTDLondon",
+                "OliviaPizzaLondon&BeiLondon",
+                "PRETAMANGER",
+                "Crussh9",
+                "Tonkotsu",
+                "MCDONALDS",
+                "GAILS",
+                "LAVELI BAKERY",
+                "NICOBAKES",
+                "WILDLEEK",
+                "THAIEXPRESS",
+                "INDOCHINE BANHMI",
+                "CABINCOFFEE",
+                "CIRCLE K/IRVING",
+                "TRIPLEAAAPIZZAANDGROC",
+                "BUBBLE TEAEMPORIUM",
+                "TIMHORTONS",
+                "SUGARBAKERY",
+                "TURBOCHICKEN",
+                "SILVER DRAGON",
+                "PRETZELMAKER",
+                "CHABAATHAI",
+                "SUMUP*MILAN MEHTA HARROW",
+                "SUSHINAMIROYALE",
+                "HARDROCKCAFEMIALUQA",
+                "ARDMORE TEAROOM",
+                "FRESHLY SQUEEZED",
+                "BOBAR",
+                "BISTROT INTDORVAL",
+                "NOODLE NAMI",
+                "KANPAI IZAKAYA",
+                "BrewDog Soho",
+                "CAYTRESOHO",
+                "WWW.TAKEAWAY.JE 01534876163",
+                "T4LONDON",
+                "NYX*PGGroup"
+            ],
+            text,
+        ):
+            return "Eating out"
+        if self._find(["HOTSPOT", "IMPARK"], text):
+            return "Parking"
+        if self._find(
+            [
+                "PrimeMemberamazon",
+                "STARTBOOTSTRAP",
+                "NOVORESUME",
+                "GODADDY",
+                "GoogleStorageLondon",
+                "GooglePlay",
+                "OPENAI",
+                "CHATGPT",
+                "ZETTLE_*CHELTENHAM TAX50",
+                "AmazonWebServices",
+            ],
+            text,
+        ):
+            return "Online Services"
+        if self._find(["FAIRVIEW ANIMAL HOSPIT", "PETSMART"], text):
+            return "Dog"
+        if self._find(
+            ["LAWTONS", "WINDWOOD", "SHOPPERS DRUGMART", "LAWEN DENTISTRY", "JVPHARMACY","BOOTS,CHELTENHAM", "HANDNBARBER"], text
+        ):
+            return "Medical"
+        if self._find(
+            [
+                "ATLANTIC PHOTOSUPPLY",
+                "BANHAM",
+                "ASHLEY FURNITURE",
+                "KENTHALIFAX",
+                "CANADIAN TIRE",
+                "CDNTIRESTORE",
+                "CDNTIRE",
+                "THEUPSSTOREHALIFAX",
+                "DELS(UK)LIMITED LONDON"
+            ],
+            text,
+        ):
+            return "Household"
+        if self._find(["RoyalBritishLegionLondon"], text):
+            return "Charity"
+        if self._find(["HEATING ENGINEERS PINNER", "PIMLICO PLUMBERS LTD"], text):
+            return "Vespan"
+        else:
+            return "uncategorised"
+
+    def _find(self, matches, text):
+        for m in matches:
+            if text.lower().find(m.lower()) != -1:
+                return True
+        return False
 
 
 class TD_Statement_Period:

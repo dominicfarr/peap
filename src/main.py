@@ -21,8 +21,8 @@ class Peap:
         if self.td.is_match(page1.extract_text()):
             self.td.process(pdf_file, reader, self.ds.write, self._dlq)
         else:
-            self._dlq(pdf_file, "Unknown pdf type")    
-            
+            self._dlq(pdf_file, "Unknown pdf type")
+
         return self.ds.read()
 
     def _dlq(self, pdf_file, issue="unknown"):

@@ -4,7 +4,7 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState([]);
   const [sortedData, setSortedData] = useState([]);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -35,28 +35,34 @@ function App() {
 
   const onFileChange = (event) => {
     // Update the state
-    setSelectedFile(event.target.files[0]);
+    setSelectedFile(Array.prototype.slice.call(event.target.files));
   };
+
   const onFileUpload = () => {
+
     // Create an object of formData
     const formData = new FormData();
 
     // Update the formData object
-    formData.append("myFile", selectedFile, selectedFile.name);
+    selectedFile.map((file) => formData.append(`files`, file, file.name));
+
 
     // Request made to the backend api
     // Send formData object
     axios
       .post("http://192.168.64.2:8080/uploadfile", formData)
       .then(function (response) {
-        setSortedData(response.data);
+        const data = response.data;
+        
+        setSortedData(data);
       })
       .catch(function (error) {
         console.log(error);
       });
   };
+
   const fileResults = () => {
-    if (sortedData) {
+    if (sortedData.length > 0) {
       return (
         <div>
           <h2>Results Table:</h2>
@@ -67,19 +73,19 @@ function App() {
             <table>
               <thead>
                 <tr>
-                  <th onClick={() => handleSort("Date")}>Date</th>
-                  <th onClick={() => handleSort("Amount")}>Amount</th>
-                  <th onClick={() => handleSort("Description")}>Description</th>
-                  <th onClick={() => handleSort("Category")}>Category</th>
+                  <th onClick={() => handleSort(0)}>Date</th>
+                  <th onClick={() => handleSort(1)}>Amount</th>
+                  <th onClick={() => handleSort(2)}>Description</th>
+                  <th onClick={() => handleSort(3)}>Category</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedData.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.Date}</td>
-                    <td>{item.Amount}</td>
-                    <td>{item.Description}</td>
-                    <td>{item.Category}</td>
+                    <td>{item[0]}</td>
+                    <td>{item[1]}</td>
+                    <td>{item[2]}</td>
+                    <td>{item[3]}</td>
                   </tr>
                 ))}
               </tbody>
@@ -89,18 +95,21 @@ function App() {
       );
     }
   };
+
   const fileData = () => {
-    if (selectedFile) {
+    if (selectedFile.length > 0) {
       return (
-        <div>
-          <h2>File Details:</h2>
+        selectedFile.map((file, index) =>(
+          <div key={index}>
+            <h2>File Details:</h2>
 
-          <p>File Name: {selectedFile.name}</p>
+            <p>File Name: {file.name}</p>
 
-          <p>File Type: {selectedFile.type}</p>
+            <p>File Type: {file.type}</p>
 
-          <p>Last Modified: {selectedFile.lastModifiedDate.toDateString()}</p>
+            <p>Last Modified: {file.lastModifiedDate.toDateString()}</p>
         </div>
+        ))
       );
     } else {
       return (
@@ -116,10 +125,9 @@ function App() {
     <div>
       <h3>File Upload using React!</h3>
       <div>
-        <input type="file" onChange={onFileChange} />
+        <input type="file" onChange={onFileChange} multiple/>
         <button onClick={onFileUpload}>Upload!</button>
       </div>
-      <section>{fileData()}</section>
       <section>{fileResults()}</section>
     </div>
   );
